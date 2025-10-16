@@ -4,10 +4,15 @@ import Input from "../common/ui/inputs/input";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import Button from "../common/ui/buttons/button";
+import { LiaSignInAltSolid } from "react-icons/lia";
 
 const loginSchema = yup.object({
-  email: yup.string().email().required(),
-  password: yup.string().required(),
+  email: yup
+    .string()
+    .email("Enter a valid email.")
+    .required("Email is Required"),
+  password: yup.string().required("password is rquired"),
 });
 
 const LoginForm = () => {
@@ -41,6 +46,7 @@ const LoginForm = () => {
             placeholder="johndoe@gmail.com"
             type="email"
             register={register}
+            error={errors?.email?.message}
           />
 
           {/* password input */}
@@ -52,16 +58,16 @@ const LoginForm = () => {
             placeholder="xxxxxxxxxxx"
             type="password"
             register={register}
+            error={errors?.password?.message}
           />
         </div>
 
         <div className="w-full">
-          <button
-            type="submit"
-            className="cursor-pointer text-center text-white font-bold text-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 w-full mt-10 py-3.5 rounded-md"
-          >
-            Sign In
-          </button>
+          <Button
+            icon={<LiaSignInAltSolid size={28} />}
+            label="Sign in"
+            type={"submit"}
+          />
         </div>
         <div>
           <p className="text-center mt-2 text-gray-700">
