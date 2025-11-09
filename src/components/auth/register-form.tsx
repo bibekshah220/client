@@ -1,23 +1,89 @@
-import { Link } from "react-router";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Link, useNavigate } from "react-router";
 import Input from "../common/ui/inputs/input";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup/src/yup.js";
+import { registerSchema } from "../../schemas/auth.schema";
+import { registerUser } from "../../api/auth.api";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import type { IRegister } from "../../@types/auth.types";
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      first_name: "",
+      last_name: "",
+      confirm_password: "",
+      phone: "",
+    },
+    resolver: yupResolver(registerSchema),
+    mode: "all",
+  });
+
+  // using mutation hook
+  const { mutate } = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (response) => {
+      toast.success(response?.message || "Account registered.");
+      //! on success navigate to home page
+      navigate("/sign-in", {
+        replace: true,
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error(error?.message || "something went wrong");
+    },
+  });
+
+  const onSubmit = async (data: IRegister) => {
+    mutate(data);
+  };
+
   return (
     <div className="mt-6 w-full h-full">
       {/* form */}
-      <form className="w-full h-full">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full h-full">
         <div className="w-full h-full flex flex-col gap-8">
           {/* first & last name */}
           <div className="grid grid-cols-2 gap-3">
             {/* first Name */}
 
-            <Input label="First Name" id="first_name" placeholder="John" />
+            <Input
+              required
+              name="first_name"
+              error={errors?.first_name?.message}
+              register={register}
+              label="First Name"
+              id="first_name"
+              placeholder="John"
+            />
             {/* last Name */}
-            <Input label="Last Name" id="last_name" placeholder="Doe" />
+            <Input
+              required
+              label="Last Name"
+              id="last_name"
+              error={errors?.last_name?.message}
+              register={register}
+              name="last_name"
+              placeholder="Doe"
+            />
           </div>
 
           {/* email input */}
           <Input
+            required
+            name="email"
+            error={errors?.email?.message}
+            register={register}
             label="Email"
             id="email"
             placeholder="johndoe@gmail.com"
@@ -26,6 +92,10 @@ const RegisterForm = () => {
 
           {/* password input */}
           <Input
+            required
+            name="password"
+            error={errors?.password?.message}
+            register={register}
             label="Password"
             id="password"
             placeholder="xxxxxxxxxxx"
@@ -34,6 +104,10 @@ const RegisterForm = () => {
 
           {/* confirm password input */}
           <Input
+            required
+            name="confirm_password"
+            error={errors?.confirm_password?.message}
+            register={register}
             label="Retype Password"
             id="confirm_password"
             placeholder="xxxxxxxxxxx"
@@ -42,6 +116,9 @@ const RegisterForm = () => {
 
           {/* phone */}
           <Input
+            name="phone"
+            error={errors?.phone?.message}
+            register={register}
             label="Phone Number"
             id="phone"
             placeholder="9865374070"
